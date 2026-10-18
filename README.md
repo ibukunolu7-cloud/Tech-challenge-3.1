@@ -237,6 +237,13 @@ This project demonstrates practical experience with Terraform, AWS infrastructur
 ## Deployment Evidence
 
 ### Hello World Webpage
+![Hello World webpage](screenshots/Hello%20World.png)
+
+### Ansible Playbook Execution
+![Successful Ansible deployment](screenshots/Ansible%20Playbook.png)
+## Deployment Evidence
+
+### Hello World Webpage
 
 ![Hello World webpage deployed on EC2](C:\Users\ibuku\Desktop\screenshots\Hello World.png)
 
