@@ -241,14 +241,5 @@ This project demonstrates practical experience with Terraform, AWS infrastructur
 
 ### Ansible Playbook Execution
 ![Successful Ansible deployment](screenshots/Ansible%20Playbook.png)
-## Deployment Evidence
-
-### Hello World Webpage
-
-![Hello World webpage deployed on EC2](C:\Users\ibuku\Desktop\screenshots\Hello World.png)
-
-### Successful Ansible Deployment
-
-![Successful Ansible playbook execution](C:\Users\ibuku\Desktop\screenshots\Ansible NGINX installation.png)
 
 
