@@ -1,0 +1,17 @@
+# Terraform working files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan*
+crash.log
+
+# Local configuration and secrets
+terraform/terraform.tfvars
+*.pem
+*.key
+.env
+
+# Python
+__pycache__/
+ansible/inventory.ini

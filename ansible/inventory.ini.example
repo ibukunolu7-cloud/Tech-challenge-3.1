@@ -1,0 +1,5 @@
+[webservers]
+web1 ansible_host=REPLACE_WITH_EC2_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=/keys/REPLACE_WITH_KEY_NAME.pem
+
+[webservers:vars]
+ansible_python_interpreter=/usr/bin/python3
