@@ -1,6 +1,7 @@
-
 pipeline {
-    agent any
+    agent {
+        label 'terraform-ansible'
+    }
 
     options {
         timestamps()
@@ -38,22 +39,57 @@ pipeline {
             }
         }
 
-        stage('Terraform and Ansible Tooling') {
+        stage('Check Tool Versions') {
             steps {
                 sh '''
-                    echo "Checking available validation tools..."
+                    set -eu
+                    terraform version
+                    ansible-playbook --version
+                '''
+            }
+        }
 
-                    if command -v terraform >/dev/null 2>&1; then
-                        terraform version
-                    else
-                        echo "Terraform is not installed on this Jenkins agent yet."
-                    fi
+        stage('Terraform Format Check') {
+            steps {
+                sh '''
+                    set -eu
+                    terraform fmt -check -recursive terraform
+                '''
+            }
+        }
 
-                    if command -v ansible-playbook >/dev/null 2>&1; then
-                        ansible-playbook --version
-                    else
-                        echo "Ansible is not installed on this Jenkins agent yet."
-                    fi
+        stage('Terraform Initialize') {
+            steps {
+                sh '''
+                    set -eu
+                    terraform -chdir=terraform init -backend=false -input=false
+                '''
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                sh '''
+                    set -eu
+                    terraform -chdir=terraform validate
+                '''
+            }
+        }
+
+        stage('Ansible Syntax Check') {
+            steps {
+                sh '''
+                    set -eu
+
+                    printf "[defaults]\\n" > /tmp/ci-ansible.cfg
+                    printf "[webservers]\\nlocalhost ansible_connection=local\\n" > /tmp/ci-inventory.ini
+
+                    cd ansible
+                    ANSIBLE_CONFIG=/tmp/ci-ansible.cfg \
+                        ansible-playbook \
+                        -i /tmp/ci-inventory.ini \
+                        --syntax-check \
+                        playbook.yml
                 '''
             }
         }
@@ -61,10 +97,10 @@ pipeline {
 
     post {
         success {
-            echo 'Initial project checks completed successfully.'
+            echo 'All Terraform and Ansible validation checks passed.'
         }
         failure {
-            echo 'The pipeline failed. Review the Console Output.'
+            echo 'Validation failed. Review the Console Output for the failing stage.'
         }
     }
 }
