@@ -242,5 +242,86 @@ This project demonstrates practical experience with Terraform, AWS infrastructur
 ### Ansible Playbook Execution
 ![Successful Ansible deployment](screenshots/Ansible%20Playbook.png)
 
+## CI/CD Pipeline with Jenkins
+
+### Overview
+
+This project uses Jenkins to automate code checkout and validation whenever changes are pushed to the GitHub repository. The pipeline checks the Terraform infrastructure configuration and Ansible playbook before any deployment is considered.
+
+**Repository:** [Tech-challenge-3.1](https://github.com/ibukunolu7-cloud/Tech-challenge-3.1)
+
+### Pipeline Architecture
+
+The CI workflow consists of the following components:
+
+- **GitHub:** Hosts the project source code and tracks changes on the `main` branch.
+- **Jenkins:** Retrieves the repository and orchestrates the validation stages.
+- **Jenkins validator agent:** A dedicated Docker-based agent named `tech-challenge-3-1-validator`, configured with the `terraform-ansible` label.
+- **Terraform:** Validates the infrastructure-as-code configuration and provider dependencies.
+- **Ansible:** Checks the playbook syntax used to configure the web server.
+
+### Automatic Build Trigger
+
+Jenkins is configured to use **Poll SCM** to check the GitHub repository for new commits.
+
+Polling schedule:
+
+```text
+H/5 * * * *
+```
+
+This schedules repository checks approximately every five minutes. When Jenkins detects a new commit, it automatically starts the pipeline without requiring a manual build.
+
+### Validation Stages
+
+The Jenkins pipeline executes the following stages:
+
+1. **Checkout:** Retrieves the latest source code from GitHub.
+2. **Check Project Files:** Verifies that required Terraform, Ansible, and documentation files are present.
+3. **Check Tool Versions:** Confirms that Terraform and Ansible are available on the validator agent.
+4. **Terraform Format Check:** Runs `terraform fmt -check -recursive terraform` to check formatting without modifying files.
+5. **Terraform Initialize:** Runs `terraform -chdir=terraform init -backend=false -input=false` to initialize the configuration and provider dependencies without configuring a backend.
+6. **Terraform Validate:** Runs `terraform -chdir=terraform validate` to check the Terraform configuration.
+7. **Ansible Syntax Check:** Runs `ansible-playbook --syntax-check playbook.yml` using a temporary local inventory to validate the playbook syntax without executing its tasks.
+
+### Successful CI Test
+
+The pipeline was tested successfully following a GitHub push.
+
+| Item | Result |
+|---|---|
+| Repository branch | `main` |
+| Test commit | `7e1922a` |
+| Trigger | SCM change detected by Jenkins |
+| Build status | SUCCESS |
+| Terraform formatting | Passed |
+| Terraform initialization | Passed |
+| Terraform validation | Passed |
+| Ansible syntax check | Passed |
+
+The successful Jenkins console output confirmed:
+
+```text
+Started by an SCM change
+All required project files are present.
+Success! The configuration is valid.
+playbook: playbook.yml
+All Terraform and Ansible validation checks passed.
+Finished: SUCCESS
+```
+
+### Scope and Safety
+
+This pipeline is a **validation-only CI workflow**. It does not execute `terraform apply`, `terraform destroy`, or the Ansible playbook against the EC2 server. Therefore, a successful build confirms that the automated checks passed; it does not confirm that infrastructure deployment or server configuration has taken place.
+
+### Skills Demonstrated
+
+- Git and GitHub version control
+- Jenkins Declarative Pipeline
+- Automated CI using SCM polling
+- Docker-based Jenkins agent configuration
+- Terraform formatting, initialization, and validation
+- Ansible playbook syntax validation
+- Automated validation and build-result monitoring
 
 
